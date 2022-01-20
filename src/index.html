@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<!-- currently unsafe-evel needed for alpine js -->
+	<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-eval';">
+	<title>netgz-launcher</title>
+	<link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="lib/fontawesome/css/all.min.css">
+	<link rel="stylesheet" href="lib/vex/css/vex-theme-default.css">
+	<link rel="stylesheet" href="lib/vex/css/vex.css">
+	<link rel="stylesheet" href="lib/noty/css/noty.css">
+	<link rel="stylesheet" href="lib/noty/css/themes/bootstrap-v4.css">
+	<link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+	<div id="app" x-data="data()" x-init="init()" class="container">
+		<h1>NetGZ Launcher</h1>
+		
+		
+	</div>
+	<script src="lib/alpinejs/js/alpine-3.8.1.js"></script>
+	<script src="lib/vex/js/vex.combined.min.js"></script>
+	<script src="lib/noty/js/noty.min.js"></script>
+	<script src="util.js"></script>
+	<script src="renderer.js"></script>
+	
+</body>
+
+</html>

@@ -1,0 +1,11 @@
+
+
+function data() {
+	return {
+		init() {
+
+		}
+	}
+}
+
+

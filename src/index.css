@@ -1,0 +1,77 @@
+:root {
+  --darkshadow: #27263482;
+  --fadedblack: #272634;
+  --lightshadow: #d9d7eec9;
+  --lightbluetint: #e5ebf7;
+  --darkred: #721c24;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: auto;
+  max-width: 38rem;
+  padding: 2rem;
+  color: #e9e9e9;
+  background-color: #002b36;
+}
+
+hr {
+  background-color: #feecba36;
+}
+
+.text-slightly-muted {
+  color: #9eaab5;
+}
+
+.fs-80 {
+  font-size: 80% !important;
+  font-weight: 400 !important;
+}
+
+.fs-60 {
+  font-size: 60% !important;
+  font-weight: 400 !important;
+}
+
+
+/* BUTTONS */
+
+.btn-no-style {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+
+.btn-no-style:focus {
+  outline: 0;
+  filter: drop-shadow(1px 1px 3px var(--darkshadow));
+}
+
+.a-no-style {
+  color: inherit;
+  border: none;
+}
+
+.a-no-style:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+.a-no-style:focus {
+  outline: 0;
+  filter: drop-shadow(1px 1px 3px var(--darkshadow));
+  outline-offset: inherit;
+  color: inherit;
+  text-decoration: none;
+}
+
+.a-no-style:active {
+  outline: none;
+}
+
+
+/* END BUTTONS */
