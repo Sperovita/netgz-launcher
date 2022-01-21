@@ -46,15 +46,13 @@
 		<div class="mt-2 config-form-container">
 			<section class="row mod-container">
 				<div class="form-group select-container col-12">
-					<label>Mod Files</label>
-					<select id="mod_selector" x-model="cc.modFiles" multiple>
-						<template x-for="file in allModFiles" :key="file">
-							<option :value="file" x-text="file"></option>
-						</template>
+					<label for="mod_selector">Mod Files</label>
+					<select id="mod_selector" multiple>
+						<option data-placeholder="true"></option>
 					</select>
 				</div>
 			</section>
-			
+
 			<hr class="my-3">
 
 			<section class="row mode-radio-container mb-3">
