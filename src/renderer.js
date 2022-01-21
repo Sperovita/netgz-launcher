@@ -64,10 +64,13 @@ function data() {
 		saveNew(){
 
 		},
-		newConfig() {
+		newConfig(){
 
 		},
-		init() {
+		launch(){
+
+		},
+		init(){
 
 			// Get into the next event loop, make sure alpine is all setup
 			setTimeout(() => {
@@ -75,6 +78,13 @@ function data() {
 			}, 100)
 		},
 		delayedInit() {
+			tippy.setDefaultProps({
+				arrow: false,
+				animation: 'scale',
+				theme: 'netgz',
+			});
+
+			tippy('[data-tippy-content]');
 
 			try{
 				const cs = new SlimSelect({
