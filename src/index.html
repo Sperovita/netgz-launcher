@@ -12,7 +12,7 @@
 	<link rel="stylesheet" href="lib/vex/css/vex.css">
 	<link rel="stylesheet" href="lib/noty/css/noty.css">
 	<link rel="stylesheet" href="lib/noty/css/themes/bootstrap-v4.css">
-	<link rel="stylesheet" href="lib/slimselect.css">
+	<link rel="stylesheet" href="lib/slimselect/slimselect.css">
 	<link rel="stylesheet" href="lib/tippy/tippy.css"> 
 	<link rel="stylesheet" href="lib/tippy/scale.css"> 
 	<link rel="stylesheet" href="index.css">
@@ -26,10 +26,8 @@
 			<div class="d-flex topbar-left align-items-end">
 				<div class="form-group select-container">
 					<label>Config</label>
-					<select id="config_selector" x-model="selectedConfig" @change="configChanged">
-						<template x-for="config in configs" :key="config.id">
-							<option :value="config.id" x-text="config.name" :selected="config.id === selectedConfig"></option>
-						</template>
+					<select id="config_selector">
+						<option data-placeholder="true"></option>
 					</select>
 				</div>
 				<div class="ml-3 form-group">
@@ -48,6 +46,12 @@
 					<button @click="newConfig" type="button" class="btn-icon"
 						data-tippy-content="New">
 						<i class="fas fa-plus"></i>
+					</button>
+				</div>
+				<div class="ml-3 form-group">
+					<button @click="deleteConfig" type="button" class="btn-icon"
+						data-tippy-content="Delete">
+						<i class="fas fa-trash"></i>
 					</button>
 				</div>
 			</div>
@@ -78,17 +82,17 @@
 			<section class="row mode-radio-container mb-3">
 				<div class="col-4">
 					<div class="form-check form-check-inline">
-						<input class="form-check-input" type="radio" name="host_join_option" id="host_join_option_join" value="join" x-model="cc.hostJoin">
+						<input class="form-check-input" type="radio" name="host_join_option" id="host_join_option_join" value="join" x-model="cc.host_join">
 						<label class="form-check-label" for="host_join_option_join">Join</label>
 					</div>
 					<div class="form-check form-check-inline">
-						<input class="form-check-input" type="radio" name="host_join_option" id="host_join_option_host" value="host" x-model="cc.hostJoin">
+						<input class="form-check-input" type="radio" name="host_join_option" id="host_join_option_host" value="host" x-model="cc.host_join">
 						<label class="form-check-label" for="host_join_option_host">Host</label>
 					</div>
 				</div>
 			</section>
 
-			<section class="net-settings-container join-container" x-show="cc.hostJoin === 'join'" 
+			<section class="net-settings-container join-container" x-show="cc.host_join === 'join'" 
 				x-transition:enter="fade-enter"
 				x-transition:enter-start="fade-enter-start"
 				x-transition:enter-end="fade-enter-end"
@@ -110,7 +114,7 @@
 				</div>
 			</section>
 
-			<section class="net-settings-container host-container" x-show="cc.hostJoin === 'host'" 
+			<section class="net-settings-container host-container" x-show="cc.host_join === 'host'" 
 				x-transition:enter="fade-enter"
 				x-transition:enter-start="fade-enter-start"
 				x-transition:enter-end="fade-enter-end"
@@ -154,7 +158,7 @@
 				<div class="row align-items-end">
 					<div class="col-4 form-group">
 						<label for="cc_netmode">Net Mode</label>
-						<select class="form-control form-control-sm" id="cc_netmode" x-model="cc.netmode">
+						<select class="form-control form-control-sm" id="cc_netmode" x-model.number="cc.netmode">
 							<option value="0">Peer To Peer</option>
 							<option value="1">Packet Server</option>
 						</select>
@@ -166,7 +170,7 @@
 					</div>
 					<div class="col-2 form-group">
 						<div class="custom-control custom-switch">
-							<input type="checkbox" class="custom-control-input custom-control-input-purple" id="cc_private" x-model="cc.private">
+							<input type="checkbox" value="1" class="custom-control-input custom-control-input-purple" id="cc_private" x-model.number="cc.private">
 							<label :class="{ 'private-on' : cc.private }" class="custom-control-label" for="cc_private">Private</label>
 						</div>
 					</div>
@@ -177,7 +181,7 @@
 			<section class="row additional-commands-container">
 				<div class="form-group col-12">
 					<label class="small" for="cc_additional_commands">Additional Commands</label>
-					<input x-model="cc.additionalCommands" type="text" class="form-control form-control-sm small" id="cc_additional_commands">
+					<input x-model="cc.additional_commands" type="text" class="form-control form-control-sm small" id="cc_additional_commands">
 				</div>
 			</section>
 			<section class="row command-preview-container">
@@ -190,7 +194,7 @@
 	</div>
 
 	<!-- SCRIPTS -->
-	<script src="lib/slimselect.js"></script>
+	<script src="lib/slimselect/slimselect.js"></script>
 	<script src="lib/tippy/popper.js"></script>
 	<script src="lib/tippy/tippy.umd.js"></script>
 	<script src="lib/vex/js/vex.combined.min.js"></script>

@@ -1,22 +1,9 @@
 const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const path = require('path');
+const dbal = require('./dbal');
 const os = require('os');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('app.db', (err) => {
-    if (err) {
-      return console.error(err.message);
-    }
-    console.log('Connected to SQlite database.');
-});
-
-// DB Schema
-const configTable = `CREATE TABLE if not exists config(
-    id integer primary key autoincrement, 
-    name text
-)`;
-db.run(configTable);
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -65,7 +52,15 @@ app.on('activate', () => {
   }
 });
 
-
-ipcMain.handle('test', (event, payload) => {
-  return 'success';
+ipcMain.handle('addConfig', (event, config) => {
+  return dbal.addConfig(config);
+})
+ipcMain.handle('deleteConfig', (event, id) => {
+  return dbal.deleteConfig(id);
+})
+ipcMain.handle('updateConfig', (event, config) => {
+  return dbal.updateConfig(config);
+})
+ipcMain.handle('getAllConfig', (event) => {
+  return dbal.getAllConfigs();
 })

@@ -5,9 +5,18 @@ const {
 
 contextBridge.exposeInMainWorld(
     "app", {
-        test(payload) {
-            return ipcRenderer.invoke('test', payload);
+        addConfig(config) {
+            return ipcRenderer.invoke('addConfig', config);
         },
+        deleteConfig(id) {
+            return ipcRenderer.invoke('deleteConfig', id);
+        },
+        updateConfig(config) {
+            return ipcRenderer.invoke('updateConfig', config);
+        },
+        getAllConfigs() {
+            return ipcRenderer.invoke('getAllConfig');
+        }
     },
 
 );
