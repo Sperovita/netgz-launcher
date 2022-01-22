@@ -41,7 +41,12 @@ const dbal = {
                 }
 
                 resolve(rows.map(config => {
-                    config.mod_files = config.mod_files.split(',');
+                    if(config.mod_files){
+                        config.mod_files = config.mod_files.split(',');
+                    }else{
+                        config.mod_files = [];
+                    }
+                    
                     return config;
                 }));
 

@@ -21,7 +21,25 @@
 
 <body>
 	<div id="app" x-data="data()" x-init="init()" class="container app-container">
-		<h1>NetGZ Launcher</h1>
+
+		<div class="d-flex justify-content-between">
+			<h1>NetGZ Launcher</h1>
+			<div class="d-flex top-right-button-bar">
+				<div class="ml-3 form-group">
+					<button @click="syncMods" type="button" class="btn-icon btn-icon-sm" 
+						data-tippy-content="Sync Mods List">
+						<i class="fas fa-sync-alt"></i>
+					</button>
+				</div>
+				<div class="ml-3 form-group">
+					<button @click="setModFolder" type="button" class="btn-icon btn-icon-sm" 
+						data-tippy-content="Set Mod Folder">
+						<i class="fas fa-cogs"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+
 		<div class="d-flex justify-content-between">
 			<div class="d-flex topbar-left align-items-end">
 				<div class="form-group select-container">

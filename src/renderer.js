@@ -2,7 +2,7 @@
 function data() {
 	return {
 		configs: [],
-		allModFiles: [],
+		allModFiles: ['Ashes2063maps115.wad', 'ashes2063mod115.pk3'],
 		cc: {}, // Current Config
 		modSlimSelect: null,
 		configSlimSelect: null,
@@ -47,9 +47,19 @@ function data() {
 			const selectedId = this.configSlimSelect.selected();
 			const selectedConfig = this.configs.find(config => config.id == selectedId);
 			// If newConfig() selected config will not be found 
-			console.log('selectedConfig', selectedConfig);
 			if(selectedConfig){
 				this.cc = selectedConfig;
+				
+				const missingMods = [];
+				this.cc.mod_files.forEach(file => {
+					if(!this.allModFiles.includes(file)){
+						missingMods.push(file);
+					}
+				})
+				if(missingMods.length){
+					displayError(`Mods in config are missing from selected mod folder and will be removed on save: ${missingMods.join(', ')}`);
+				}
+
 				this.modSlimSelect.set(this.cc.mod_files);
 			}
 			
@@ -67,13 +77,14 @@ function data() {
 				port: '',
 				mod_files: [],
 				additional_commands: '',
-				private: 0,
+				private: 1,
 				players: 2,
 				map: '',
 				skill: -1,
 				mode: 'coop',
 				netmode: 0,
 			}
+			document.getElementById('cc_private').checked = true;
 		},
 		async save(){
 			if(!this.cc.id){
@@ -120,7 +131,18 @@ function data() {
 
 		},
 		newConfig(){
+			vex.dialog.confirm({
+				message: `Create new config? If current is not saved work will be lost.`,
+				callback: (confirm) => {
+					if(confirm){
+						this.resetCurrentConfig();
+					}
+				}
+			})
+		},
+		resetCurrentConfig(){
 			this.configSlimSelect.set('');
+			this.modSlimSelect.set([]);
 			this.setDefaultConfig();
 		},
 		deleteConfig(){
@@ -137,7 +159,7 @@ function data() {
 						try{
 							await app.deleteConfig(this.cc.id);
 							await this.fetchConfigs();
-							this.newConfig();
+							this.resetCurrentConfig();
 							displaySuccess('Deleted');
 						}catch(error){
 							displayError(error);
@@ -147,8 +169,34 @@ function data() {
 			})
 			
 		},
+		async syncMods(){
+			const success = await this.fetchMods();
+			if(success){
+				displaySuccess('Mods Synced');
+			}
+		},
 		launch(){
 
+		},
+		async setModFolder(){
+			try{
+				const folder = await app.setModFolder();
+				this.fetchMods();
+				displaySuccess(`Mod folder changed to ${folder}`);
+			}catch(error){
+				displayError(error);
+			}
+			
+		},
+		async fetchMods(){
+			try{
+				this.allModFiles = await app.getAllModFiles();
+				this.modSlimSelect.setData(this.allModFiles.map(file => ({text: file}) ));
+				return true;
+			}catch(error){
+				displayError(error);
+				return false;
+			}
 		},
 		async fetchConfigs() {
 			try {
@@ -157,6 +205,8 @@ function data() {
 				this.configSlimSelect.setData(selects);
 				if(!this.cc.id){
 					this.configSlimSelect.set('');
+				}else{
+					this.configSlimSelect.set(this.cc.id);
 				}
 				return true;
 			}catch(error) {
@@ -201,6 +251,7 @@ function data() {
 				this.modSlimSelect.set(this.cc.mod_files);
 		
 				this.fetchConfigs();
+				this.fetchMods();
 			}catch(error){
 				// This library has an annoying bug on render currently
 			}

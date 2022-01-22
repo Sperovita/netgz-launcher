@@ -64,3 +64,36 @@ ipcMain.handle('updateConfig', (event, config) => {
 ipcMain.handle('getAllConfig', (event) => {
   return dbal.getAllConfigs();
 })
+ipcMain.handle('getAllModFiles', (event) => {
+  return new Promise((resolve, reject) => {
+    dbal.getSetting('mod_folder')
+    .then(folder => {
+      if(!folder){
+        reject('Please set the mod folder with the gear button in the top right');
+      }
+      resolve(fs.readdirSync(folder));
+    })
+    .catch(error => {
+      reject(error);
+    })
+  })
+})
+
+
+ipcMain.handle('setModFolder', (event) => { 
+  return new Promise((resolve, reject) => {
+    dialog.showOpenDialog({
+      properties: ['openDirectory']
+    })
+    .then(choice => {
+      if(choice.canceled || !choice.filePaths.length){
+        reject('Cancelled');
+      }else{
+        const choosenPath = choice.filePaths[0];
+        dbal.setSetting('mod_folder', choosenPath)
+        .then(res => { resolve(choosenPath) })
+        .catch(err => { reject(err) });
+      }
+    })
+  })
+})

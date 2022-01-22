@@ -182,6 +182,11 @@ hr {
 .btn-icon > * {
   font-size: 1.8em;
 }
+
+.btn-icon-sm > * {
+  font-size: 1em;
+}
+
 .btn-icon:hover {
   color: var(--c-dimyellow);
 }

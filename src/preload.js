@@ -16,6 +16,12 @@ contextBridge.exposeInMainWorld(
         },
         getAllConfigs() {
             return ipcRenderer.invoke('getAllConfig');
+        },
+        setModFolder(){
+            return ipcRenderer.invoke('setModFolder');
+        },
+        getAllModFiles(){
+            return ipcRenderer.invoke('getAllModFiles');
         }
     },
 
