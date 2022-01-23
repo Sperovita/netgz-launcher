@@ -46,6 +46,10 @@ body {
   background-color: var(--c-deepergreen);
 }
 
+#noty_layout__topRight{
+  top: 30px;
+}
+
 code {
   color: var(--c-lightblue);
 }
