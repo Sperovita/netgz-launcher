@@ -14,8 +14,14 @@ const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 600,
-    height: 700,
+    height: 750,
     autoHideMenuBar: true,
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#001f27',
+      symbolColor: '#e9e9e9'
+    },
+    icon: `${__dirname}/netgz.ico`,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true, 

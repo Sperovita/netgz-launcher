@@ -20,6 +20,9 @@
   --c-lightyellow: #eeedc5;
   --c-darkyellow: #7a7e5b;
   --c-red: #d14545;
+  --c-darkblack: #191922;
+  --c-deepgreen: #002b36;
+  --c-deepergreen: #001f27;
 }
 
 
@@ -28,8 +31,19 @@ body {
   margin: auto;
   max-width: 38rem;
   padding: 2rem;
+  padding-top: 2.5rem;
   color: var(--c-text);
-  background-color: #002b36;
+  background-color: var(--c-deepgreen);
+}
+
+.drag-bar{
+  -webkit-app-region: drag;
+  height: 1.9rem;
+  width: 600px;
+  position: fixed;
+  top:0;
+  left:0;
+  background-color: var(--c-deepergreen);
 }
 
 code {
