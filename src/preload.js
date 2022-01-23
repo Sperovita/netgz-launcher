@@ -17,11 +17,20 @@ contextBridge.exposeInMainWorld(
         getAllConfigs() {
             return ipcRenderer.invoke('getAllConfig');
         },
+        setGZDoomFolder(){
+            return ipcRenderer.invoke('setGZDoomFolder');
+        },
         setModFolder(){
             return ipcRenderer.invoke('setModFolder');
         },
         getAllModFiles(){
             return ipcRenderer.invoke('getAllModFiles');
+        },
+        getSetting(name){
+            return ipcRenderer.invoke('getSetting', name);
+        },
+        launch(config){
+            return ipcRenderer.invoke('launch', config);
         }
     },
 

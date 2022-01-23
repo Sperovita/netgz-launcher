@@ -6,10 +6,11 @@ function data() {
 		cc: {}, // Current Config
 		modSlimSelect: null,
 		configSlimSelect: null,
+		running: false,
 		serializableCC() {
 			return JSON.parse(JSON.stringify(this.cc));
 		},
-		command(){
+		command(){ // Refactor: duplicate code in main for security reasons, remove this and pull this function here on load from main
 			const cc = this.cc;
 			let command = `gzdoom -${cc.host_join}`;
 
@@ -49,7 +50,7 @@ function data() {
 			// If newConfig() selected config will not be found 
 			if(selectedConfig){
 				this.cc = selectedConfig;
-				
+
 				const missingMods = [];
 				this.cc.mod_files.forEach(file => {
 					if(!this.allModFiles.includes(file)){
@@ -175,8 +176,23 @@ function data() {
 				displaySuccess('Mods Synced');
 			}
 		},
-		launch(){
-
+		async launch(){
+			try{
+				const gzdoomFolder = await app.getSetting('gzdoom_folder');
+				if(!gzdoomFolder){
+					displayError('GZDoom Folder not set. Set with button in top right');
+					return false;
+				}
+				this.running = true;
+				await app.launch(this.serializableCC());
+				this.running = false;
+				return true;
+			}catch(error){
+				this.running = false;
+				displayError(error);
+			}
+			return false;
+			
 		},
 		async setModFolder(){
 			try{
@@ -187,6 +203,14 @@ function data() {
 				displayError(error);
 			}
 			
+		},
+		async setGZDoomFolder(){
+			try{
+				const folder = await app.setGZDoomFolder();
+				displaySuccess(`GZDoom folder changed to ${folder}`);
+			}catch(error){
+				displayError(error);
+			}
 		},
 		async fetchMods(){
 			try{

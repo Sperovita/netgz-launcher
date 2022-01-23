@@ -1,9 +1,9 @@
 const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const path = require('path');
 const dbal = require('./dbal');
-const os = require('os');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -52,6 +52,40 @@ app.on('activate', () => {
   }
 });
 
+function genCommand(cc, modPath = ''){ 
+  let command = `gzdoom -${cc.host_join}`;
+
+  if(cc.host_join === 'host'){
+    command += ` ${cc.players} ${cc.private ? '-private' : ''} -netmode ${cc.netmode}`;
+    if(cc.skill > -1){
+      command += ` -skill ${cc.skill}`
+    }
+    if(cc.map){
+      command += ` -warp ${cc.map}`;
+    }
+    if(cc.mode !== 'coop'){
+      command += ` -${cc.mode}`;
+    }
+  }else if(cc.host_join === 'join'){
+    command += ` ${cc.ip}`;
+  }
+
+  if(cc.port){
+    command += ` -port ${cc.port}`;
+  }
+
+  if(cc.mod_files.length){
+    command += ` -file`;
+    cc.mod_files.forEach(file => {
+      command += ` ${modPath}${file}`;
+    })
+  }
+
+  command += ` ${cc.additional_commands}`;
+
+  return command;
+}
+
 ipcMain.handle('addConfig', (event, config) => {
   return dbal.addConfig(config);
 })
@@ -61,6 +95,9 @@ ipcMain.handle('deleteConfig', (event, id) => {
 ipcMain.handle('updateConfig', (event, config) => {
   return dbal.updateConfig(config);
 })
+ipcMain.handle('getSetting', (event, name) => {
+  return dbal.getSetting(name);
+})
 ipcMain.handle('getAllConfig', (event) => {
   return dbal.getAllConfigs();
 })
@@ -68,10 +105,11 @@ ipcMain.handle('getAllModFiles', (event) => {
   return new Promise((resolve, reject) => {
     dbal.getSetting('mod_folder')
     .then(folder => {
-      if(!folder){
-        reject('Please set the mod folder with the gear button in the top right');
+      if(folder){
+        resolve(fs.readdirSync(folder));
+      }else{
+        resolve([]);
       }
-      resolve(fs.readdirSync(folder));
     })
     .catch(error => {
       reject(error);
@@ -79,7 +117,24 @@ ipcMain.handle('getAllModFiles', (event) => {
   })
 })
 
-
+// Refactor: can merge the two set folders
+ipcMain.handle('setGZDoomFolder', (event) => { 
+  return new Promise((resolve, reject) => {
+    dialog.showOpenDialog({
+      properties: ['openDirectory']
+    })
+    .then(choice => {
+      if(choice.canceled || !choice.filePaths.length){
+        reject('Cancelled');
+      }else{
+        const choosenPath = choice.filePaths[0];
+        dbal.setSetting('gzdoom_folder', choosenPath)
+        .then(res => { resolve(choosenPath) })
+        .catch(err => { reject(err) });
+      }
+    })
+  })
+})
 ipcMain.handle('setModFolder', (event) => { 
   return new Promise((resolve, reject) => {
     dialog.showOpenDialog({
@@ -96,4 +151,26 @@ ipcMain.handle('setModFolder', (event) => {
       }
     })
   })
+})
+
+ipcMain.handle('launch', async (event, config) => {
+  try{
+    const gzdoomFolder = await dbal.getSetting('gzdoom_folder');
+    let modPath = '';
+    if(config.mod_files.length){
+      const modFolder = await dbal.getSetting('mod_folder');
+      if(modFolder != gzdoomFolder){
+        modPath = `${modFolder}${path.sep}`;
+      }
+    }
+
+    const command = `${gzdoomFolder}${path.sep}${genCommand(config, modPath)}`;
+    console.log(`Running Command: ${command}`);
+    const { stdout, stderr } = await exec(command);
+    return true;
+  }catch(error){
+    throw error;
+  }
+
+  
 })

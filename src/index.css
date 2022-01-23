@@ -11,6 +11,7 @@
   --c-darkpurple-25: #7b44d440;
   --c-lightblue: #a5c7d1;
   --c-lightgrey: #eaeeee;
+  --c-grey: #cfd1d1;
   /* Refactor: Compliment the body background better with these yellows */
   --c-darkshadow: #bdb82dc7;
   --c-lightshadow: #e7e137c7;
@@ -18,6 +19,7 @@
   --c-dimyellow: #c9c798;
   --c-lightyellow: #eeedc5;
   --c-darkyellow: #7a7e5b;
+  --c-red: #d14545;
 }
 
 
@@ -32,6 +34,13 @@ body {
 
 code {
   color: var(--c-lightblue);
+}
+
+.running-notice {
+  color: var(--c-red);
+  position: absolute;
+  bottom: -24px;
+  left: -12px;
 }
 
 .footer-container {
@@ -195,9 +204,9 @@ hr {
   filter: drop-shadow(1px 1px 3px var(--c-lightshadow));
 }
 .btn-icon:disabled {
-  color: var(--c-lightgrey);
+  color: var(--c-grey);
   filter: drop-shadow(0px 0px 0px var(--c-lightshadow));
-  cursor: none;
+  cursor: not-allowed;
 }
 .btn-icon:focus {
   filter: drop-shadow(1px 1px 3px var(--c-lightshadow));
