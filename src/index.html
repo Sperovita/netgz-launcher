@@ -21,7 +21,7 @@
 
 <body>
 	<div class="drag-bar"></div>
-	<div id="app" x-data="data()" x-init="init()" class="container app-container">
+	<main id="app" x-data="data()" x-init="init()" class="container app-container">
 
 		<div class="d-flex justify-content-between">
 			<h1>NetGZ Launcher</h1>
@@ -40,7 +40,7 @@
 				</div>
 				<div class="ml-3 form-group">
 					<button @click="syncMods" type="button" class="btn-icon btn-icon-sm" 
-						data-tippy-content="Sync Mods List">
+						data-tippy-content="Sync Mods & Saves List">
 						<i class="fas fa-sync-alt"></i>
 					</button>
 				</div>
@@ -98,6 +98,15 @@
 				<div class="form-group select-container col-12">
 					<label for="mod_selector">Mod Files</label>
 					<select id="mod_selector" multiple>
+						<option data-placeholder="true"></option>
+					</select>
+				</div>
+			</section>
+
+			<section class="row load-game-container">
+				<div class="form-group select-container col-12">
+					<label for="load_game_selector">Load Game</label>
+					<select id="load_game_selector">
 						<option data-placeholder="true"></option>
 					</select>
 				</div>
@@ -217,7 +226,7 @@
 			</section>
 		</div>
 
-	</div>
+	</main>
 
 	<!-- SCRIPTS -->
 	<script src="lib/slimselect/slimselect.js"></script>

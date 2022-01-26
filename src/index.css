@@ -50,6 +50,10 @@ body {
   top: 30px;
 }
 
+.font-weight-500 {
+  font-weight: 500;
+}
+
 code {
   color: var(--c-lightblue);
 }

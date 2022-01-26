@@ -10,11 +10,17 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
+const runtimeArgs =  process.argv.slice(2) || [];
+let debugMode = false;
+if(runtimeArgs.includes('debug')){
+  debugMode = true;
+}
+
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 600,
-    height: 750,
+    width: debugMode ? 1200 : 600,
+    height: 800,
     autoHideMenuBar: true,
     titleBarStyle: 'hidden',
     titleBarOverlay: {
@@ -34,7 +40,10 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  if(debugMode){
+    mainWindow.webContents.openDevTools();
+  }
+  
 };
 
 // This method will be called when Electron has finished
@@ -59,7 +68,27 @@ app.on('activate', () => {
   }
 });
 
-function genCommand(cc, modPath = ''){ 
+// Refactor: Hacky, need to learn better ways of parsing binaries
+function parseTextFromSave(fileString, name){
+  const searchTerm = `tEXt${name}`;
+  const indexOfTerm = fileString.indexOf(searchTerm);
+  if(indexOfTerm === -1){
+    return '';
+  }
+  let crawlIndex = searchTerm.length + indexOfTerm + 1;
+  let result = '';
+  while(fileString.charCodeAt(crawlIndex) <= 127){
+    result += fileString.charAt(crawlIndex);
+    crawlIndex++;
+  }
+  const resultBleedTextIndex = result.indexOf('tEXt');
+  if(resultBleedTextIndex !== -1){
+    result = result.substring(0, resultBleedTextIndex);
+  }
+  return result;
+}
+
+function genCommand(cc, modPath = '', savePath = ''){ 
   let command = `gzdoom -${cc.host_join}`;
 
   if(cc.host_join === 'host'){
@@ -88,6 +117,10 @@ function genCommand(cc, modPath = ''){
     })
   }
 
+  if(cc.save_file){
+    command += ` -loadgame ${savePath}${cc.save_file}`;
+  }
+
   command += ` ${cc.additional_commands}`;
 
   return command;
@@ -114,6 +147,40 @@ ipcMain.handle('getAllModFiles', (event) => {
     .then(folder => {
       if(folder){
         resolve(fs.readdirSync(folder));
+      }else{
+        resolve([]);
+      }
+    })
+    .catch(error => {
+      reject(error);
+    })
+  })
+})
+ipcMain.handle('getAllSaveFiles', (event) => {
+  return new Promise((resolve, reject) => {
+    dbal.getSetting('gzdoom_folder')
+    .then(gzdoomPath => {
+      
+      if(gzdoomPath){
+        const savePath = `${gzdoomPath}${path.sep}Save`
+        const files = fs.readdirSync(savePath);
+
+        const filesWithMeta = files.map(file => {
+          const saveFile = `${savePath}${path.sep}${file}`;
+          const stats = fs.statSync(saveFile);
+          const buffer = fs.readFileSync(saveFile);
+          const fileString = buffer.toString('utf-8');
+          const saveName = parseTextFromSave(fileString, 'Title');
+          const currentMap = parseTextFromSave(fileString, 'Current Map');
+          return {
+            name: file, 
+            saveName,
+            currentMap,
+            modified: stats.mtime, 
+            created: stats.ctime
+          };
+        })
+        resolve(filesWithMeta);
       }else{
         resolve([]);
       }
@@ -170,8 +237,12 @@ ipcMain.handle('launch', async (event, config) => {
         modPath = `${modFolder}${path.sep}`;
       }
     }
+    let savePath = '';
+    if(config.save_file){
+      savePath = `${gzdoomFolder}${path.sep}Save${path.sep}`
+    }
 
-    const command = `${gzdoomFolder}${path.sep}${genCommand(config, modPath)}`;
+    const command = `${gzdoomFolder}${path.sep}${genCommand(config, modPath, savePath)}`;
     console.log(`Running Command: ${command}`);
     const { stdout, stderr } = await exec(command);
     return true;

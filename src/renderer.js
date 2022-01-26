@@ -2,10 +2,12 @@
 function data() {
 	return {
 		configs: [],
-		allModFiles: ['Ashes2063maps115.wad', 'ashes2063mod115.pk3'],
+		allModFiles: [],
+		allSaveFiles: [],
 		cc: {}, // Current Config
 		modSlimSelect: null,
 		configSlimSelect: null,
+		loadGameSlimSelect: null, 
 		running: false,
 		serializableCC() {
 			return JSON.parse(JSON.stringify(this.cc));
@@ -40,6 +42,10 @@ function data() {
 				})
 			}
 
+			if(cc.save_file){
+				command += ` -loadgame ${cc.save_file}`;
+			}
+
 			command += ` ${cc.additional_commands}`;
 
 			return command;
@@ -61,31 +67,17 @@ function data() {
 					displayError(`Mods in config are missing from selected mod folder and will be removed on save: ${missingMods.join(', ')}`);
 				}
 
+				if(this.cc.save_file && !this.allSaveFiles.includes(this.cc.save_file)){
+					displayError(`The selected save file ${this.cc.save_file} in this config is missing and will be removed from the config on save`);
+				}
 				this.modSlimSelect.set(this.cc.mod_files);
+				this.loadGameSlimSelect.set(this.cc.save_file);
 			}
 			
 		},
 		changeToConfig(id){
 			// selected is typically string since modeled from select controlled by slim select
 			this.configSlimSelect.set(`${id}`);
-		},
-		setDefaultConfig(){
-			this.cc = {
-				id: null,
-				name: '',
-				host_join: 'join',
-				ip: '',
-				port: '',
-				mod_files: [],
-				additional_commands: '',
-				private: 1,
-				players: 2,
-				map: '',
-				skill: -1,
-				mode: 'coop',
-				netmode: 0,
-			}
-			document.getElementById('cc_private').checked = true;
 		},
 		async save(){
 			if(!this.cc.id){
@@ -175,6 +167,10 @@ function data() {
 			if(success){
 				displaySuccess('Mods Synced');
 			}
+			const saveSuccess = await this.fetchSaves();
+			if(saveSuccess){
+				displaySuccess('Saves Synced');
+			}
 		},
 		async launch(){
 			try{
@@ -212,6 +208,46 @@ function data() {
 				displayError(error);
 			}
 		},
+		async fetchSaves(){
+			try{
+				const saveFiles = await app.getAllSaveFiles();
+				// Sort by newest files first
+				saveFiles.sort((fileA, fileB) => {
+					if(fileA.modified.getTime() > fileB.modified.getTime()){
+						return -1;
+					}
+					if(fileA.modified.getTime() < fileB.modified.getTime()){
+						return 1;
+					}
+
+					return 0;
+				})
+				this.allSaveFiles = saveFiles.map(file => file.name);
+				this.loadGameSlimSelect.setData(saveFiles.map(file => {
+					return { 
+						text: file.name,
+						value: file.name,
+						data: { created: file.created, modified: file.modified },
+						innerHTML: `
+							<div class="d-flex justify-content-between">
+								<div class="">${file.name}</div>
+								<div class="small">&nbsp[${file.modified.toLocaleString()}]&nbsp</div>
+								
+							</div>
+							<div class="d-flex justify-content-between">
+								<div class="font-weight-500 small">${file.saveName}</div>
+								<div class="font-italic small">&nbsp${file.currentMap}&nbsp</div>
+							</div>
+						`
+					}
+				}));
+				this.loadGameSlimSelect.set(this.cc.save_file);
+				return true;
+			}catch(error){
+				displayError(error);
+				return false;
+			}
+		},
 		async fetchMods(){
 			try{
 				this.allModFiles = await app.getAllModFiles();
@@ -245,7 +281,7 @@ function data() {
 				this.mounted()
 			})
 		},
-		mounted() {
+		async mounted() {
 			tippy.setDefaultProps({
 				arrow: false,
 				animation: 'scale',
@@ -267,18 +303,50 @@ function data() {
 				this.modSlimSelect = new SlimSelect({
 					select: '#mod_selector',
 					placeholder: 'Select Mod Files',
-					data: this.allModFiles.map(file => ({text: file}) ),
+					data: [],
 					onChange: (info) => {
 						this.cc.mod_files = info.map(choice => choice.value);
 					},
 				});
+				
+				this.loadGameSlimSelect = new SlimSelect({
+					select: '#load_game_selector',
+					placeholder: 'Select Save to Load',
+					data: [],
+					allowDeselect: true,
+					onChange: (info) => {
+						this.cc.save_file = info.value || '';
+					},
+				})
+
+				await this.fetchConfigs();
+				await this.fetchMods();
+				await this.fetchSaves();
+
 				this.modSlimSelect.set(this.cc.mod_files);
-		
-				this.fetchConfigs();
-				this.fetchMods();
+				this.loadGameSlimSelect.set(this.cc.save_file);				
 			}catch(error){
 				// This library has an annoying bug on render currently
 			}
-		}
+		},
+		setDefaultConfig(){
+			this.cc = {
+				id: null,
+				name: '',
+				host_join: 'join',
+				ip: '',
+				port: '',
+				mod_files: [],
+				additional_commands: '',
+				private: 1,
+				players: 2,
+				map: '',
+				skill: -1,
+				mode: 'coop',
+				netmode: 0,
+				save_file: '',
+			}
+			document.getElementById('cc_private').checked = true;
+		},
 	}
 }

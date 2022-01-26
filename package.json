@@ -1,7 +1,7 @@
 {
   "name": "netgz-launcher",
   "productName": "netgz-launcher",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Gui to load gzdoom for net multiplayer games",
   "main": "src/main.js",
   "scripts": {

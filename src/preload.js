@@ -26,6 +26,9 @@ contextBridge.exposeInMainWorld(
         getAllModFiles(){
             return ipcRenderer.invoke('getAllModFiles');
         },
+        getAllSaveFiles(){
+            return ipcRenderer.invoke('getAllSaveFiles');
+        },
         getSetting(name){
             return ipcRenderer.invoke('getSetting', name);
         },
