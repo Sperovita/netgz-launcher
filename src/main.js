@@ -89,21 +89,24 @@ function parseTextFromSave(fileString, name){
 }
 
 function genCommand(cc, modPath = '', savePath = ''){ 
-  let command = `gzdoom -${cc.host_join}`;
+  let command = `gzdoom`;
 
   if(cc.host_join === 'host'){
-    command += ` ${cc.players} ${cc.private ? '-private' : ''} -netmode ${cc.netmode}`;
+    command += ` -host ${cc.players} ${cc.private ? '-private' : ''} -netmode ${cc.netmode}`;
+    if(cc.mode !== 'coop'){
+      command += ` -${cc.mode}`;
+    }
+  }else if(cc.host_join === 'join'){
+    command += ` -join ${cc.ip}`;
+  }
+
+  if(cc.host_join === 'host' || cc.host_join === 'single_player'){
     if(cc.skill > -1){
       command += ` -skill ${cc.skill}`
     }
     if(cc.map){
       command += ` -warp ${cc.map}`;
     }
-    if(cc.mode !== 'coop'){
-      command += ` -${cc.mode}`;
-    }
-  }else if(cc.host_join === 'join'){
-    command += ` ${cc.ip}`;
   }
 
   if(cc.port){

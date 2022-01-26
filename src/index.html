@@ -115,7 +115,7 @@
 			<hr class="my-3">
 
 			<section class="row mode-radio-container mb-3">
-				<div class="col-4">
+				<div class="col-12">
 					<div class="form-check form-check-inline">
 						<input class="form-check-input" type="radio" name="host_join_option" id="host_join_option_join" value="join" x-model="cc.host_join">
 						<label class="form-check-label" for="host_join_option_join">Join</label>
@@ -123,6 +123,38 @@
 					<div class="form-check form-check-inline">
 						<input class="form-check-input" type="radio" name="host_join_option" id="host_join_option_host" value="host" x-model="cc.host_join">
 						<label class="form-check-label" for="host_join_option_host">Host</label>
+					</div>
+					<div class="form-check form-check-inline">
+						<input class="form-check-input" type="radio" name="host_join_option" id="host_join_option_single_player" value="single_player" x-model="cc.host_join">
+						<label class="form-check-label" for="host_join_option_single_player">Single Player</label>
+					</div>
+				</div>
+			</section>
+
+			<section class="net-settings-container single-player-container" x-show="cc.host_join === 'single_player'" 
+				x-transition:enter="fade-enter"
+				x-transition:enter-start="fade-enter-start"
+				x-transition:enter-end="fade-enter-end"
+				x-transition:leave="fade-leave"
+				x-transition:leave-start="fade-leave-start"
+				x-transition:leave-end="fade-leave-end">
+				<div class="row">
+					<div class="col-3 form-group">
+						<label for="cc_map_single_player">Map</label>
+						<input x-model="cc.map" type="text" 
+							class="form-control form-control-sm" id="cc_map_single_player">
+					</div>
+					<div class="col-2 form-group">
+						<label for="cc_skill_single_player">Difficulty</label>
+						<select class="form-control form-control-sm" id="cc_skill_single_player" x-model.number="cc.skill">
+							<option value="-1"></option>
+							<option>0</option>
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option>5</option>
+						</select>
 					</div>
 				</div>
 			</section>
@@ -211,6 +243,7 @@
 					</div>
 				</div>
 			</section>
+
 		</div>
 		<div class="footer-container">
 			<section class="row additional-commands-container">
@@ -219,12 +252,26 @@
 					<input x-model="cc.additional_commands" type="text" class="form-control form-control-sm small" id="cc_additional_commands">
 				</div>
 			</section>
-			<section class="row command-preview-container" data-tippy-content="Note: The command that will be run will use absolute paths for mod files and gzdoom">
+			<section class="row command-preview-container">
 				<div class="col-12">
-					<code class="small" x-text="command"></code>
+					<div style="display: none;">
+						<div id="command_info">
+							<div>Note: The command that will be run will use absolute paths for mod files, save files and gzdoom</div>
+							<div class="small mt-3">Example: </div>
+							<div><code>C:\Games\GZDoom\gzdoom -join 192.169.0.100 -file C:\Mods\mod.wad</code></div>
+						</div>
+					</div>	
+					<button id="command_info_icon" class="btn-icon btn-icon-sm">
+						<i class="fas fa-info-circle fa-sm"></i>
+					</button> 
+					<span>
+						<code class="small" x-text="command"></code>
+					</span>
 				</div>
 			</section>
 		</div>
+
+		
 
 	</main>
 

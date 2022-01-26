@@ -14,21 +14,24 @@ function data() {
 		},
 		command(){ // Refactor: duplicate code in main for security reasons, remove this and pull this function here on load from main
 			const cc = this.cc;
-			let command = `gzdoom -${cc.host_join}`;
+			let command = `gzdoom`;
 
 			if(cc.host_join === 'host'){
-				command += ` ${cc.players} ${cc.private ? '-private' : ''} -netmode ${cc.netmode}`;
+				command += ` -host ${cc.players} ${cc.private ? '-private' : ''} -netmode ${cc.netmode}`;
+				if(cc.mode !== 'coop'){
+					command += ` -${cc.mode}`;
+				}
+			}else if(cc.host_join === 'join'){
+				command += ` -join ${cc.ip}`;
+			}
+
+			if(cc.host_join === 'host' || cc.host_join === 'single_player'){
 				if(cc.skill > -1){
 					command += ` -skill ${cc.skill}`
 				}
 				if(cc.map){
 					command += ` -warp ${cc.map}`;
 				}
-				if(cc.mode !== 'coop'){
-					command += ` -${cc.mode}`;
-				}
-			}else if(cc.host_join === 'join'){
-				command += ` ${cc.ip}`;
 			}
 
 			if(cc.port){
@@ -231,7 +234,7 @@ function data() {
 						innerHTML: `
 							<div class="d-flex justify-content-between">
 								<div class="">${file.name}</div>
-								<div class="small">&nbsp[${file.modified.toLocaleString()}]&nbsp</div>
+								<div class="small">&nbsp${file.modified.toLocaleString()}&nbsp</div>
 								
 							</div>
 							<div class="d-flex justify-content-between">
@@ -252,6 +255,7 @@ function data() {
 			try{
 				this.allModFiles = await app.getAllModFiles();
 				this.modSlimSelect.setData(this.allModFiles.map(file => ({text: file}) ));
+				this.modSlimSelect.set(this.cc.mod_files);
 				return true;
 			}catch(error){
 				displayError(error);
@@ -289,6 +293,15 @@ function data() {
 			});
 
 			tippy('[data-tippy-content]');
+
+			tippy('#command_info_icon', {
+                content: document.getElementById('command_info'),
+                allowHTML: true,
+                interactive: true,
+                trigger: 'click',
+                arrow: false,
+                delay: [0,0],
+            });
 
 			try{
 				this.configSlimSelect = new SlimSelect({
